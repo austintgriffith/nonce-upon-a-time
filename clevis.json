@@ -1,0 +1,13 @@
+{
+  "provider": "http://localhost:8545",
+  "gasprice": 3,
+  "ethprice": 205.098503444,
+  "deploygas": 5500000,
+  "xfergas": 1300000,
+  "DEBUG": true,
+  "USE_INFURA": false,
+  "ROOT_FOLDER": "/Users/austingriffith/nonce-upon-a-time",
+  "CRA_FOLDER": "./src",
+  "TESTS_FOLDER": "tests",
+  "CONTRACTS_FOLDER": "."
+}
