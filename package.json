@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "clevis": "0.0.92",
+    "clevis": "0.0.94",
     "dapparatus": "^1.0.23",
     "mocha": "^5.2.0",
     "react": "^16.5.2",

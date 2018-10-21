@@ -10,7 +10,6 @@ class App extends Component {
       web3: false,
       account: false,
       gwei: 4,
-      doingTransaction: false,
     }
   }
   handleInput(e){
@@ -34,7 +33,7 @@ class App extends Component {
          }}
        />
       )
-      /*
+
       connectedDisplay.push(
         <ContractLoader
          key="ContractLoader"
@@ -69,33 +68,53 @@ class App extends Component {
             console.log("Transaction Receipt",transaction,receipt)
           }}
         />
-      )*/
-      /*
+      )
+
+      let lines = []
+
+      for(let e in this.state.events){
+        let anEvent =  this.state.events[e]
+        console.log("EVENT!!!",anEvent)
+        lines.push(
+          <div key={e}>
+            <Address
+              {...this.state}
+              config={{
+                showBalance: false,
+                showAddress: false
+              }}
+              address={anEvent.sender}
+            />
+            <span style={{paddingLeft:10}}>
+              {anEvent.line}
+            </span>
+          </div>
+        )
+      }
+
       if(contracts){
         contractsDisplay.push(
           <div key="UI" style={{padding:30}}>
-            <div>
-              <Address
-                {...this.state}
-                address={contracts.YOURCONTRACT._address}
-              />
-            </div>
-            broadcast string: <input
-                style={{verticalAlign:"middle",width:400,margin:6,maxHeight:20,padding:5,border:'2px solid #ccc',borderRadius:5}}
-                type="text" name="broadcastText" value={this.state.broadcastText} onChange={this.handleInput.bind(this)}
+            <h1>
+              Nonce Upon A Time...
+            </h1>
+            {lines}
+            <input
+                style={{verticalAlign:"middle",width:800,margin:6,marginTop:20,maxHeight:20,padding:5,border:'2px solid #ccc',borderRadius:5}}
+                type="text" name="writeText" value={this.state.writeText} onChange={this.handleInput.bind(this)}
             />
-            <Button color={this.state.doingTransaction?"orange":"green"} size="2" onClick={()=>{
+            <Button size="2" onClick={()=>{
                 this.setState({doingTransaction:true})
-                //tx(contracts.YOURCONTRACT.YOURFUNCTION(YOURARGUMENTS),(receipt)=>{
-                //  this.setState({doingTransaction:false})
-                //})
+                tx(contracts.Stories.write(this.state.writeText),(receipt)=>{
+                  this.setState({doingTransaction:false,writeText:""})
+                })
               }}>
-              Send
+              Write
             </Button>
             <Events
-              config={{hide:false}}
-              contract={contracts.YOURCONTRACT}
-              eventName={"YOUREVENT"}
+              config={{hide:true}}
+              contract={contracts.Stories}
+              eventName={"Write"}
               block={block}
               onUpdate={(eventData,allEvents)=>{
                 console.log("EVENT DATA:",eventData)
@@ -105,7 +124,7 @@ class App extends Component {
           </div>
         )
       }
-      */
+
     }
     return (
       <div className="App">
