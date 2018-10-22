@@ -4,7 +4,10 @@
   "private": true,
   "dependencies": {
     "clevis": "0.0.94",
+    "cors": "^2.8.4",
     "dapparatus": "^1.0.23",
+    "express": "^4.16.4",
+    "helmet": "^3.14.0",
     "mocha": "^5.2.0",
     "react": "^16.5.2",
     "react-dom": "^16.5.2",

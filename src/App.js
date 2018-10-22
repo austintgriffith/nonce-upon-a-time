@@ -1,7 +1,16 @@
 import React, { Component } from 'react';
 import './App.css';
-import { Metamask, Gas, ContractLoader, Transactions, Events, Scaler, Blockie, Address, Button } from "dapparatus"
+import { Dapparatus, Gas, ContractLoader, Transactions, Events, Scaler, Blockie, Address, Button } from "dapparatus"
 import Web3 from 'web3';
+
+
+const METATX = {
+  endpoint:"http://0.0.0.0:9999/",
+  contract:require("./contracts/Proxy.address.js"),
+  //accountGenerator: "//account.metatx.io",
+}
+const WEB3_PROVIDER = 'http://0.0.0.0:8545'
+
 
 class App extends Component {
   constructor(props) {
@@ -43,8 +52,13 @@ class App extends Component {
          onReady={(contracts,customLoader)=>{
            console.log("contracts loaded",contracts)
            this.setState({contracts:contracts},async ()=>{
-             console.log("Contracts Are Ready:",this.state.contracts)
-           })
+
+                console.log("====!! Loading dyamic contract "+METATX.contract)
+                let metaContract = customLoader("Proxy",METATX.contract)//new this.state.web3.eth.Contract(require("./contracts/BouncerProxy.abi.js"),this.state.address)
+                console.log("====!! metaContract:",metaContract)
+                this.setState({metaContract:metaContract})
+
+            })
          }}
         />
       )
@@ -58,6 +72,9 @@ class App extends Component {
           block={block}
           avgBlockTime={avgBlockTime}
           etherscan={etherscan}
+          metaAccount={this.state.metaAccount}
+          metaContract={this.state.metaContract}
+          metatx={METATX}
           onReady={(state)=>{
             console.log("Transactions component is ready:",state)
             this.setState(state)
@@ -128,8 +145,14 @@ class App extends Component {
     }
     return (
       <div className="App">
-        <Metamask
-          config={{requiredNetwork:['Unknown','Rinkeby']}}
+        <Dapparatus
+          config={{
+            DEBUG:false,
+            requiredNetwork:['Unknown','Rinkeby'],
+          ///  metatxAccountGenerator: false
+          }}
+          metatx={METATX}
+          fallbackWeb3Provider={new Web3.providers.HttpProvider(WEB3_PROVIDER)}
           onUpdate={(state)=>{
            console.log("metamask state update:",state)
            if(state.web3Provider) {
