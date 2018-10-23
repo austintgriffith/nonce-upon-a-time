@@ -52,6 +52,7 @@ app.get('/miner', (req, res) => {
 app.post('/tx', async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   console.log("/tx",req.body)
+  console.log("RECOVER:",req.body.message,req.body.sig)
   let account = web3.eth.accounts.recover(req.body.message,req.body.sig)
   console.log("RECOVERED:",account)
   if(account.toLowerCase()==req.body.parts[1].toLowerCase()){

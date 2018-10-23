@@ -75,6 +75,16 @@ class App extends Component {
           metaAccount={this.state.metaAccount}
           metaContract={this.state.metaContract}
           metatx={METATX}
+          metaTxParts = {(proxyAddress,fromAddress,toAddress,value,txData,nonce)=>{
+            return [
+              proxyAddress,
+              fromAddress,
+              toAddress,
+              web3.utils.toTwosComplement(value),
+              txData,
+              web3.utils.toTwosComplement(nonce),
+            ]
+          }}
           onReady={(state)=>{
             console.log("Transactions component is ready:",state)
             this.setState(state)
