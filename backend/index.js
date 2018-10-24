@@ -15,6 +15,8 @@ var Web3 = require('web3');
 var web3 = new Web3();
 web3.setProvider(new web3.providers.HttpProvider('http://0.0.0.0:8545'));
 
+let transactions = {}
+
 const DESKTOPMINERACCOUNT = 3 //index in geth
 
 let accounts
@@ -46,7 +48,23 @@ app.get('/miner', (req, res) => {
   console.log("/miner")
   res.set('Content-Type', 'application/json');
   res.end(JSON.stringify({address:accounts[DESKTOPMINERACCOUNT]}));
+});
 
+app.get('/txs/:account', (req, res) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  console.log("/txs/"+req.params.account)
+  let thisTxsKey = req.params.account.toLowerCase()
+  console.log("Getting Transactions for ",thisTxsKey)
+  let allTxs = transactions[thisTxsKey]
+  let recentTxns = []
+  for(let a in allTxs){
+    let age = Date.now() - allTxs[a].time
+    if(age<120000){
+      recentTxns.push(allTxs[a])
+    }
+  }
+  res.set('Content-Type', 'application/json');
+  res.end(JSON.stringify(allTxs));
 });
 
 app.post('/tx', async (req, res) => {
@@ -78,6 +96,15 @@ app.post('/tx', async (req, res) => {
     contract.methods.forward(req.body.sig,req.body.parts[1],req.body.parts[2],req.body.parts[3],req.body.parts[4]).send(
       txparams ,(error, transactionHash)=>{
         console.log("TX CALLBACK",error,transactionHash)
+        res.set('Content-Type', 'application/json');
+        res.end(JSON.stringify({transactionHash:transactionHash}));
+        let fromAddress = req.body.parts[1].toLowerCase()
+        if(!transactions[fromAddress]){
+          transactions[fromAddress] = []
+        }
+        if(transactions[fromAddress].indexOf(transactions)<0){
+          transactions[fromAddress].push({hash:transactionHash,time:Date.now(),metatx:true,miner:accounts[DESKTOPMINERACCOUNT]})
+        }
       }
     )
     .on('error',(err,receiptMaybe)=>{
@@ -97,8 +124,6 @@ app.post('/tx', async (req, res) => {
     })
 
   }
-  res.set('Content-Type', 'application/json');
-  res.end(JSON.stringify({hello:"world"}));
 });
 
 app.listen(9999);

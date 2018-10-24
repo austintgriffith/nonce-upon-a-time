@@ -50,18 +50,17 @@ class App extends Component {
          web3={web3}
          require={path => {return require(`${__dirname}/${path}`)}}
          onReady={(contracts,customLoader)=>{
-           console.log("contracts loaded",contracts)
-           this.setState({contracts:contracts},async ()=>{
-
+            console.log("contracts loaded",contracts)
+            this.setState({contracts:contracts},async ()=>{
                 console.log("====!! Loading dyamic contract "+METATX.contract)
                 let metaContract = customLoader("Proxy",METATX.contract)//new this.state.web3.eth.Contract(require("./contracts/BouncerProxy.abi.js"),this.state.address)
                 console.log("====!! metaContract:",metaContract)
                 this.setState({metaContract:metaContract})
-
             })
          }}
         />
       )
+
       connectedDisplay.push(
         <Transactions
           key="Transactions"
@@ -75,6 +74,7 @@ class App extends Component {
           metaAccount={this.state.metaAccount}
           metaContract={this.state.metaContract}
           metatx={METATX}
+          balance={this.state.balance} /* so we can metatx if balance 0 */
           metaTxParts = {(proxyAddress,fromAddress,toAddress,value,txData,nonce)=>{
             return [
               proxyAddress,
@@ -101,7 +101,6 @@ class App extends Component {
 
       for(let e in this.state.events){
         let anEvent =  this.state.events[e]
-        console.log("EVENT!!!",anEvent)
         lines.push(
           <div key={e}>
             <Address
@@ -133,6 +132,7 @@ class App extends Component {
             <Button size="2" onClick={()=>{
                 this.setState({doingTransaction:true})
                 tx(contracts.Stories.write(this.state.writeText),(receipt)=>{
+                  console.log("TX CALLED BACK",receipt)
                   this.setState({doingTransaction:false,writeText:""})
                 })
               }}>
@@ -144,7 +144,7 @@ class App extends Component {
               eventName={"Write"}
               block={block}
               onUpdate={(eventData,allEvents)=>{
-                console.log("EVENT DATA:",eventData)
+                //console.log("EVENT DATA:",eventData)
                 this.setState({events:allEvents})
               }}
             />
