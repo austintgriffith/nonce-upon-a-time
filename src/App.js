@@ -101,16 +101,43 @@ class App extends Component {
 
       for(let e in this.state.events){
         let anEvent =  this.state.events[e]
+
+        let metaAddress = ""
+        console.log("comparing",anEvent,this.state.metaContract)
+        if(anEvent.sender.toLowerCase() == this.state.metaContract._address.toLowerCase()){
+          console.log("SENDER IS METAACCOUNT, SEARCH FOR ACCOUNT IN FORWARDS!")
+          for(let f in this.state.MetaForwards){
+            if(this.state.MetaForwards[f].destination==contracts.Stories._address){
+              console.log("FOUND ONE GOING TO THIS CONTRACT:",this.state.MetaForwards[f].data,this.state.MetaForwards[f].signer)
+              if(this.state.MetaForwards[f].data.indexOf("0xebaac771")>=0){
+                console.log("this is the 'write' function...")
+                let parts = this.state.MetaForwards[f].data.substring(10)
+                let writeString = this.state.web3.eth.abi.decodeParameter('string',parts)
+                console.log("writeString",writeString)
+                if(writeString == anEvent.line){
+                  console.log("MATCH!")
+                  metaAddress=this.state.MetaForwards[f].signer
+                }
+              }
+            }
+          }
+        }
+        let accountToPay = anEvent.sender
+        let extraBlockie = ""
+        if(metaAddress){
+          accountToPay = metaAddress
+          extraBlockie = (
+            //metaAddress
+            <div style={{position:"absolute",left:0,top:0}}>
+              <Blockie config={{size:1.9}} address={metaAddress}/>
+            </div>
+          )
+        }
+
         lines.push(
-          <div key={e}>
-            <Address
-              {...this.state}
-              config={{
-                showBalance: false,
-                showAddress: false
-              }}
-              address={anEvent.sender}
-            />
+          <div key={e}style={{position:"relative"}}>
+            <Blockie config={{size:2.5}} address={anEvent.sender}/>
+            {extraBlockie}
             <span style={{paddingLeft:10}}>
               {anEvent.line}
             </span>
@@ -119,6 +146,22 @@ class App extends Component {
       }
 
       if(contracts){
+        let metaEventLoader = ""
+        if(this.state.metaContract){
+          metaEventLoader = (
+            <Events
+              config={{hide:true}}
+                contract={this.state.metaContract}
+                eventName={"Forwarded"}
+                block={this.state.block}
+                onUpdate={(eventData,allEvents)=>{
+                  console.log("Forwarded",eventData)
+                  this.setState({MetaForwards:allEvents.reverse()})
+                }}
+            />
+          )
+        }
+
         contractsDisplay.push(
           <div key="UI" style={{padding:30}}>
             <h1>
@@ -148,6 +191,7 @@ class App extends Component {
                 this.setState({events:allEvents})
               }}
             />
+            {metaEventLoader}
           </div>
         )
       }
